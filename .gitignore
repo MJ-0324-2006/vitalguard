@@ -1,0 +1,13 @@
+﻿venv/
+.venv/
+__pycache__/
+*.pyc
+data/mimic/
+data/processed/
+experiments/
+checkpoints/
+*.pt
+*.pth
+.DS_Store
+*.log
+*.db

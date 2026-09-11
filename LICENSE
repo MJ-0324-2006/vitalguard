@@ -1,0 +1,45 @@
+MIT License
+
+Copyright (c) 2026 Team Orbit (VitalGuard)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+IMPORTANT NOTICE REGARDING DATA AND CLINICAL USE:
+
+This software is intended for RESEARCH PURPOSES ONLY.
+
+1. DATA: This repository contains NO patient data. The MIMIC-III and MIMIC-IV
+   clinical databases used to train and evaluate the models described in this
+   repository are subject to separate licensing terms from PhysioNet
+   (https://physionet.org). Access requires completion of CITI human subjects
+   training and PhysioNet credentialing. Do not share, redistribute, or upload
+   any MIMIC patient data to public repositories.
+
+2. CLINICAL USE: This software has NOT been cleared or approved by the U.S.
+   Food and Drug Administration (FDA), CE marked by a Notified Body, or
+   approved by any other regulatory authority. It is NOT intended for use in
+   clinical decision-making, patient diagnosis, treatment, or monitoring
+   without appropriate validation and regulatory approval.
+
+3. NO WARRANTY: The authors make no representations about the accuracy,
+   reliability, or suitability of this software for any clinical purpose.
+   Use for clinical purposes is solely at the user's own risk.
+

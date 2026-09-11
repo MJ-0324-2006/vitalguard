@@ -1,0 +1,312 @@
+# =============================================================================
+# VitalGuard: MIMIC-III/IV Experiment Configuration
+# =============================================================================
+# All hyperparameters and paths for data extraction, model training,
+# evaluation, and real-time monitoring.
+
+# =============================================================================
+# Data paths
+# =============================================================================
+data:
+  mimic_version: 3                        # 3 or 4
+  backend: "csv"                          # "csv" or "postgresql"
+  csv_dir: "data/mimic"                   # MIMIC CSV files directory
+  db_uri: ""                              # PostgreSQL URI (if backend=postgresql)
+  schema: "mimiciii"                      # "mimiciii" or "mimiciv"
+
+  processed_dir: "data/processed"
+  cohort_file: "data/processed/cohort.csv"
+  vitals_dir: "data/processed/vitals"
+  labs_dir: "data/processed/labs"
+  labels_dir: "data/processed/labels"
+  normalizer_path: "data/processed/normalizer_stats.json"
+
+# =============================================================================
+# Cohort extraction
+# =============================================================================
+cohort:
+  min_age: 18
+  min_los_hours: 24.0
+  exclude_csru: true
+  first_admission_only: true
+  train_fraction: 0.70
+  val_fraction: 0.15
+  test_fraction: 0.15
+  seed: 42
+
+# =============================================================================
+# Physiological channels
+# =============================================================================
+channels:
+  vital_signs:
+    - heart_rate
+    - sbp
+    - dbp
+    - map
+    - spo2
+    - resp_rate
+    - temperature
+    - gcs
+  lab_values:
+    - lactate
+    - wbc
+    - creatinine
+    - bilirubin_total
+    - platelet
+    - pao2
+    - fio2
+    - inr
+  n_vital_channels: 8
+  n_lab_channels: 8
+  resample_freq: "1h"            # hourly resampling
+
+# =============================================================================
+# Preprocessing
+# =============================================================================
+preprocessing:
+  imputation_strategy: "forward_fill"  # forward_fill | linear | mean
+  normalization_strategy: "z_score"    # z_score | robust | min_max | per_patient
+  add_missing_indicator: true
+  max_gap_hours: 8.0
+  min_completeness: 0.50
+
+  # Sliding window
+  window_size: 6              # hours of input window
+  horizon: 24                 # hours ahead for event labeling
+  step_size: 1                # hours between windows
+
+# =============================================================================
+# Clinical outcomes
+# =============================================================================
+outcomes:
+  names:
+    - hospital_mortality
+    - sepsis
+    - vasopressor
+    - ventilation
+    - rrt_proxy
+  prediction_horizons:
+    hospital_mortality: 24    # predict mortality within next 24h
+    sepsis: 24
+    vasopressor: 12
+    ventilation: 12
+    rrt_proxy: 6
+
+  # Class prevalences (MIMIC-III estimates)
+  prevalences:
+    hospital_mortality: 0.114
+    sepsis: 0.152
+    vasopressor: 0.187
+    ventilation: 0.221
+    rrt_proxy: 0.083
+
+# =============================================================================
+# Sepsis labeling
+# =============================================================================
+sepsis:
+  sofa_threshold: 2            # SOFA increase >= 2 = organ dysfunction
+  onset_window_hours: 24.0     # infection + organ dysfunction within ±24h
+  use_qsofa_screen: true
+  negative_buffer_hours: 6     # exclude this window before onset from negatives
+
+# =============================================================================
+# Model configurations
+# =============================================================================
+models:
+  # --- Transformer Anomaly Detector ---
+  transformer:
+    input_dim: 8
+    d_model: 64
+    n_heads: 4
+    n_layers: 2
+    ff_dim: 128
+    seq_len: 6                  # = window_size in hours (at 1h resolution)
+    dropout: 0.3
+    causal: true
+    n_outcomes: 3
+    use_cross_channel: true
+    outcome_names:
+      - mortality
+      - sepsis
+      - vasopressor
+
+  # --- LSTM Autoencoder ---
+  lstm_ae:
+    input_dim: 8
+    hidden_dim: 128
+    latent_dim: 64
+    seq_len: 6
+    num_layers: 2
+    dropout: 0.1
+    variational: true
+    kl_weight: 0.5
+    channel_names:
+      - heart_rate
+      - sbp
+      - dbp
+      - map
+      - spo2
+      - resp_rate
+      - temperature
+      - gcs
+
+  # --- TCN Predictor ---
+  tcn:
+    input_dim: 8
+    n_hidden: 128
+    kernel_size: 3
+    n_levels: 8                 # receptive field: ~12h at 1h resolution
+    horizons:
+      - 1                      # minutes ahead
+      - 2
+      - 3
+    dropout: 0.1
+
+  # --- Early Warning Model ---
+  early_warning:
+    input_dim: 8
+    seq_len: 6
+    hidden_dim: 128
+    lstm_hidden: 64
+    n_time_bins: 48             # 48h survival analysis window
+    dropout: 0.1
+    outcome_names:
+      - mortality
+      - sepsis
+      - vasopressor
+
+# =============================================================================
+# Training hyperparameters
+# =============================================================================
+training:
+  # General
+  device: "auto"               # auto | cuda | cpu
+  seed: 42
+  epochs: 100
+  batch_size: 64
+  accumulation_steps: 1
+  mixed_precision: true
+
+  # Optimiser
+  optimizer: "adamw"           # adamw | adam | sgd
+  lr: 3.0e-4
+  weight_decay: 1.0e-3
+  gradient_clip_norm: 1.0
+
+  # Scheduler
+  scheduler: "warmup_cosine"   # cosine | plateau | warmup_cosine | none
+  warmup_steps: 200
+  min_lr: 1.0e-6
+  patience_scheduler: 5
+
+  # Loss weights
+  recon_weight: 1.0
+  cls_weight: 1.0
+  kl_weight: 0.5
+  tte_weight: 0.5
+
+  # Class imbalance
+  use_weighted_sampler: true
+  outcome: "mortality"         # for sampling weights
+
+  # Early stopping
+  patience: 7
+  min_delta: 1.0e-4
+  monitor: "val_auroc"         # val_auroc | val_loss
+
+  # Checkpointing
+  checkpoint_dir: "checkpoints"
+  save_best_only: true
+  save_every_n_epochs: 10
+
+  # Logging
+  log_interval: 50
+  use_wandb: false
+  project_name: "vitalguard"
+
+  # Data loading
+  num_workers: 4
+  pin_memory: true
+
+# =============================================================================
+# Evaluation
+# =============================================================================
+evaluation:
+  endpoints:
+    - hospital_mortality
+    - sepsis
+    - vasopressor
+
+  sensitivity_targets:
+    - 0.80
+    - 0.90
+    - 0.95
+
+  fixed_specificities:
+    - 0.90
+    - 0.95
+    - 0.99
+
+  bootstrap_ci: true
+  n_bootstrap: 1000
+
+  # Temporal analysis
+  temporal_horizons:
+    - 1
+    - 2
+    - 4
+    - 6
+    - 8
+    - 12
+    - 24
+
+  # Alarm rate analysis
+  alarm_cooldown_minutes: 30
+  alarm_persistence_steps: 2
+
+# =============================================================================
+# Real-time monitoring
+# =============================================================================
+monitoring:
+  window_hours: 6
+  step_minutes: 5              # re-score every 5 minutes
+
+  thresholds:
+    critical: 0.90
+    high: 0.75
+    medium: 0.55
+
+  persistence:
+    high_steps: 2
+    medium_steps: 1
+
+  anti_fatigue:
+    cooldown_minutes: 30
+    max_alerts_per_day: 48
+
+  # Dashboard output
+  dashboard_port: 8080
+  output_format: "json"       # json | hl7_fhir
+
+# =============================================================================
+# Paths for trained models
+# =============================================================================
+model_paths:
+  transformer: "checkpoints/transformer/best_model.pt"
+  lstm_ae:     "checkpoints/lstm_ae/best_model.pt"
+  tcn:         "checkpoints/tcn/best_model.pt"
+  early_warning: "checkpoints/early_warning/best_model.pt"
+  ensemble_weights: "checkpoints/ensemble_weights.json"
+
+# =============================================================================
+# Experiment tracking
+# =============================================================================
+experiment:
+  name: "mimic_iii_full_cohort_v1"
+  output_dir: "experiments/v1"
+  results_dir: "results"
+  figures_dir: "results/figures"
+  tables_dir: "results/tables"
+  log_level: "INFO"
+
+
