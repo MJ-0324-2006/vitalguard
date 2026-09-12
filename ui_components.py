@@ -155,14 +155,13 @@ def inject_custom_css():
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
                 width: 100% !important;
                 height: auto !important;
-                min-height: 52px !important;
-                border-radius: 10px !important;
-                font-size: 0.58rem !important;
-                line-height: 1.25 !important;
-                padding: 0.35rem 0.1rem !important;
+                min-height: 58px !important;
+                border-radius: 14px !important;
+                font-size: 1.35rem !important;
+                line-height: 1 !important;
+                padding: 0.5rem 0.1rem 0.3rem 0.1rem !important;
                 white-space: normal !important;
                 word-break: keep-all !important;
-                overflow-wrap: normal !important;
                 border: none !important;
                 background: transparent !important;
                 color: #64748B !important;
@@ -171,15 +170,19 @@ def inject_custom_css():
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 2px !important;
+                gap: 4px !important;
             }
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button p {
-                font-size: 0.58rem !important;
+                font-size: 0.62rem !important;
+                font-weight: 600 !important;
                 margin: 0 !important;
-                line-height: 1.2 !important;
+                line-height: 1 !important;
+                color: #64748B !important;
             }
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] {
-                background: #FEF2F2 !important;
+                background: transparent !important;
+            }
+            .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] p {
                 color: #E11D48 !important;
                 font-weight: 800 !important;
             }
@@ -649,16 +652,16 @@ def render_mobile_bottom_nav(active_tab: str, alert_count: int = 0):
     with nav_container:
         cols = st.columns(4)
         tabs = [
-            ("home", "🏠 Home"),
-            ("patients", "👥 Patients"),
-            ("alerts", f"🚨 Alerts" + (f" ({alert_count})" if alert_count > 0 else "")),
-            ("profile", "👤 Profile"),
+            ("home", "🏠", "Home"),
+            ("patients", "👥", "Patients"),
+            ("alerts", "🚨", f"Alerts{f' ({alert_count})' if alert_count > 0 else ''}"),
+            ("profile", "👤", "Profile"),
         ]
         clicked = None
-        for col, (tab_key, label) in zip(cols, tabs):
+        for col, (tab_key, icon, label) in zip(cols, tabs):
             with col:
                 is_active = (active_tab == tab_key)
-                if st.button(label, key=f"nav_{tab_key}", type="primary" if is_active else "secondary", use_container_width=True):
+                if st.button(f"{icon}\n{label}", key=f"nav_{tab_key}", type="primary" if is_active else "secondary", use_container_width=True):
                     clicked = tab_key
         return clicked
 def render_top_bar(user: Dict[str, Any]):
