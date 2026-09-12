@@ -13,12 +13,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
+import importlib
 import streamlit as st
 
 # Setup system path
 REPO_ROOT = Path(__file__).resolve().parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+import ui_components
+importlib.reload(ui_components)
 
 from db import (
     init_db,
@@ -63,6 +67,7 @@ from ui_components import (
     inject_custom_css,
     render_top_bar,
     render_mobile_header,
+    render_mobile_bottom_nav,
     render_risk_badge,
     render_overview_cards,
     render_simulated_sms_banner,
@@ -74,6 +79,8 @@ from ui_components import (
     render_empty_state,
     render_disclaimer_footer,
     render_model_validation_card,
+    render_design_system_showcase,
+    render_split_login_left_panel,
     get_svg_icon,
 )
 
@@ -185,18 +192,25 @@ user_ward = user.get("ward", "Ward 3A")
 
 active_scope_label = user_ward
 
-# Unified horizontal top header bar (Logo -> Nav Items -> Nurse Info -> Logout)
+# Unread alert counter calculation
+filter_ward_alerts = None if (is_admin and st.session_state.admin_ward_filter == "All Wards") else (st.session_state.admin_ward_filter if is_admin else user_ward)
+ward_alerts_all = get_alerts_for_ward(hospital_id, filter_ward_alerts, limit=50)
+unread_count = len([a for a in ward_alerts_all if not a.get("acknowledged")])
+alerts_label = f"🚨 Alerts ({unread_count})" if unread_count > 0 else "🚨 Alerts"
+now_str = datetime.now().strftime("%a %d %b • %H:%M")
+
+# Unified persistent dark navy top header bar
 desktop_nav_container = st.container(key="desktop_top_nav")
 with desktop_nav_container:
-    header_cols = st.columns([2.6, 0.9, 0.9, 0.9, 0.9, 2.2, 0.9])
+    header_cols = st.columns([2.6, 0.9, 0.9, 1.0, 0.9, 2.2, 0.9])
 
     with header_cols[0]:
         st.markdown(f"""
         <div style="display:flex; align-items:center; gap:10px; padding:2px 0;">
-            <div style="background:#E11D48; color:#FFFFFF; font-weight:800; font-size:1.1rem; padding:4px 10px; border-radius:8px; letter-spacing:-0.5px; box-shadow:0 2px 4px rgba(225,29,72,0.2);">VG</div>
+            <div class="vg-brand-logo">VG</div>
             <div>
-                <div style="font-weight:800; font-size:1.05rem; color:#0F172A; line-height:1.2;">VitalGuard</div>
-                <div style="font-size:0.72rem; color:#E11D48; font-weight:600;">{user['hospital_name']} &bull; {user_ward}</div>
+                <div class="vg-brand-title">VitalGuard Pro <span class="vg-version-tag">v2.4</span></div>
+                <div class="vg-brand-sub">{user['hospital_name']} &bull; {user_ward}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -212,7 +226,7 @@ with desktop_nav_container:
             st.rerun()
 
     with header_cols[3]:
-        if st.button("🚨 Alerts", use_container_width=True, type="primary" if st.session_state.nav_tab == "Alerts" else "secondary", key="nav_btn_alerts"):
+        if st.button(alerts_label, use_container_width=True, type="primary" if st.session_state.nav_tab == "Alerts" else "secondary", key="nav_btn_alerts"):
             st.session_state.nav_tab = "Alerts"
             st.rerun()
 
@@ -224,10 +238,11 @@ with desktop_nav_container:
     with header_cols[5]:
         role_badge = "ADMIN" if is_admin else "NURSE"
         st.markdown(f"""
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:#F8FAFC; border:1px solid #CBD5E1; padding:4px 10px; border-radius:9999px; margin-top:2px;">
-            <span style="font-weight:700; font-size:0.78rem; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👤 {user['name']}</span>
-            <span style="background:#E11D48; color:#FFFFFF; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; white-space:nowrap;">{role_badge}</span>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:#FFFFFF; border:1px solid #CBD5E1; padding:4px 10px; border-radius:9999px; margin-top:2px;">
+            <span style="font-weight:700; font-size:0.75rem; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👤 {user['name']}</span>
+            <span style="background:#E11D48; color:#FFFFFF; font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; white-space:nowrap;">{role_badge}</span>
         </div>
+        <div style="font-size:0.68rem; color:#475569; text-align:right; margin-top:2px; font-weight:600;">🕒 {now_str}</div>
         """, unsafe_allow_html=True)
 
     with header_cols[6]:
@@ -252,16 +267,28 @@ if nav_click:
 # =============================================================================
 
 if st.session_state.nav_tab == "Home":
-    st.subheader(f"👋 Welcome back, {user['name']}")
-    
-    if is_admin:
-        if st.session_state.admin_ward_filter == "All Wards":
-            scope_desc = f"Hospital-Wide Surveillance across **all wards** at **{user['hospital_name']}**."
-        else:
-            scope_desc = f"Surveillance filtered to **{st.session_state.admin_ward_filter}** at **{user['hospital_name']}**."
-    else:
-        scope_desc = f"Monitoring assigned beds in **{user_ward}** at **{user['hospital_name']}**."
-    st.markdown(scope_desc)
+    # Header with shift context and action buttons
+    hdr_c1, hdr_c2 = st.columns([3.5, 1.5])
+    with hdr_c1:
+        st.markdown(f"""
+        <div style="display:flex; align-items:center; gap:12px;">
+            <h2 style="margin:0; font-weight:800; color:#0F172A; letter-spacing:-0.5px;">Patient Overview</h2>
+            <span style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:9999px;">
+                ⏱️ Morning Shift &bull; 07:00 - 15:00
+            </span>
+        </div>
+        <p style="margin:2px 0 0 0; font-size:0.85rem; color:#64748B;">Surveillance scope: <strong>{active_scope_label}</strong> at <strong>{user['hospital_name']}</strong>.</p>
+        """, unsafe_allow_html=True)
+    with hdr_c2:
+        btn_a1, btn_a2 = st.columns(2)
+        with btn_a1:
+            if st.button("➕ Add Patient", type="primary", use_container_width=True, key="home_add_pt_top"):
+                navigate_to("Patients", open_admit=True)
+        with btn_a2:
+            if st.button("🔄 Refresh", type="secondary", use_container_width=True, key="home_refresh_btn"):
+                st.rerun()
+
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
     # Show simulated SMS banner if recently triggered
     if st.session_state.last_simulated_sms:
@@ -292,7 +319,6 @@ if st.session_state.nav_tab == "Home":
     for p in patients:
         history = get_patient_vitals_history(p["id"])
         curr_v = history[-1] if history else None
-        # Call the SINGLE SOURCE OF TRUTH risk function
         risk = calculate_patient_risk(history, curr_v)
 
         if risk["level"] == "RED":
@@ -304,45 +330,51 @@ if st.session_state.nav_tab == "Home":
 
         patient_risk_cards.append((p, history, risk))
 
-    # Overview cards matching professional palette
+    # Soft colored summary stat panels
     render_overview_cards(critical_count, warning_count, stable_count)
 
+    # Focus telemetry monitor on most critical patient
     if patient_risk_cards:
         red_pts = [item for item in patient_risk_cards if item[2]["level"] == "RED"]
         target_pt, target_hist, target_risk = red_pts[0] if red_pts else patient_risk_cards[0]
         latest_pt_vitals = target_hist[-1] if target_hist else None
         st.markdown("---")
         st.markdown(f"#### 📟 Real-Time Bedside Telemetry Monitor &bull; {target_pt['bed_display']} ({target_pt['name']})")
-        st.caption("Live high-contrast telemetry feed for active patient observation.")
+        st.caption("Live ICU telemetry feed showing parameter values, trend deltas, and normal bounds.")
         render_bedside_monitor_display(latest_pt_vitals, target_hist)
 
     st.markdown("---")
 
-    # Action header row
-    h_col1, h_col2, h_col3 = st.columns([3, 1.5, 1.2])
-    with h_col1:
-        st.markdown(f"#### 👥 Patient Directory ({len(patient_risk_cards)} Active in {active_scope_label})")
-    with h_col2:
-        if is_admin:
-            st.caption(f"Viewing: **{st.session_state.admin_ward_filter}**")
-    with h_col3:
-        if st.button("➕ Admit Patient", use_container_width=True, key="home_admit_btn"):
-            navigate_to("Patients", open_admit=True)
+    # Patient Directory Controls & Grid
+    d_hdr1, d_hdr2 = st.columns([3, 2])
+    with d_hdr1:
+        st.markdown(f"#### 👥 Ward Patient Directory ({len(patient_risk_cards)} Active)")
+    with d_hdr2:
+        search_filter_term = st.text_input("🔍 Quick Search Patient", placeholder="Filter by name, bed...", key="home_quick_search")
 
     if not patient_risk_cards:
         render_empty_state(
             icon=get_svg_icon("hospital", 32, "#94A3B8"),
             title=f"No Active Patients in {active_scope_label}",
-            description="There are currently zero active patients admitted to this scope. Click 'Admit Patient' to register a patient and initiate automated early-warning monitoring."
+            description="There are currently zero active patients admitted to this scope. Click 'Add Patient' to register a patient and initiate automated early-warning monitoring."
         )
     else:
-        # Display Patient Cards (2 per row)
+        # Filter patients if search term provided
+        filtered_cards = patient_risk_cards
+        if search_filter_term:
+            term = search_filter_term.lower()
+            filtered_cards = [
+                item for item in patient_risk_cards
+                if term in item[0]['name'].lower() or term in item[0]['bed_display'].lower() or term in item[0]['known_condition'].lower()
+            ]
+
+        # Display Patient Cards (2 per row on desktop)
         cols = st.columns(2)
-        for idx, (p, hist, risk) in enumerate(patient_risk_cards):
+        for idx, (p, hist, risk) in enumerate(filtered_cards):
             with cols[idx % 2]:
                 latest = hist[-1] if hist else {}
                 time_str = latest.get("time", "No readings")
-                last_time_label = f"Last charted: {time_str}" if hist else "No vitals recorded yet"
+                last_time_label = f"Last charted: {time_str}" if hist else "No vitals recorded"
 
                 hr_str = fmt_num(latest.get('heart_rate'))
                 bp_str = fmt_bp(latest.get('sbp'), latest.get('dbp'))
@@ -351,13 +383,14 @@ if st.session_state.nav_tab == "Home":
                 temp_str = fmt_num(latest.get('temperature'), unit="°C")
 
                 strat_mode = "Personalized Baseline" if risk['is_personalized'] else "Population Threshold"
+                risk_lvl_class = f"patient-card-{risk['level'].lower()}"
 
                 st.markdown(f"""
-                <div class="patient-card">
+                <div class="patient-card {risk_lvl_class}">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <div>
-                            <div style="font-weight: 700; font-size: 1.05rem; color: #0F172A;">{p['bed_display']} &bull; {p['name']}</div>
-                            <div style="font-size: 0.76rem; color: #64748B;">Diagnosis: {p['known_condition']}</div>
+                            <div style="font-weight: 800; font-size: 1.08rem; color: #0F172A;">{p['bed_display']} &bull; {p['name']}</div>
+                            <div style="font-size: 0.76rem; color: #64748B;">MRN: <code>PT-{p['id']:05d}</code> &bull; Diagnosis: {p['known_condition']}</div>
                         </div>
                         <div>
                             {render_risk_badge(risk['level'], risk['score'])}
@@ -763,19 +796,129 @@ elif st.session_state.nav_tab == "Patients":
 
 
 # =============================================================================
-# VIEW 3: ALERTS FEED & SIMULATED SMS LOGS
+# VIEW 3: ALERTS FEED & ESCALATION MANAGEMENT
 # =============================================================================
 
 elif st.session_state.nav_tab == "Alerts":
     st.subheader("🚨 Clinical Deterioration Alerts Feed")
-    st.markdown(f"Compact surveillance log for **{user_ward}**.")
+    st.markdown(f"Surveillance alert log and direct escalation protocol management for **{user_ward}**.")
 
-    alerts = get_alerts_for_ward(hospital_id, user_ward, limit=50)
-    render_compact_alerts_log(alerts)
+    filter_ward_alerts = None if (is_admin and st.session_state.admin_ward_filter == "All Wards") else (st.session_state.admin_ward_filter if is_admin else user_ward)
+    alerts = get_alerts_for_ward(hospital_id, filter_ward_alerts, limit=100)
+
+    # 1. Summary Stat Cards Header
+    total_alerts = len(alerts)
+    crit_alerts = len([a for a in alerts if a.get("risk_level") == "RED"])
+    warn_alerts = len([a for a in alerts if a.get("risk_level") == "YELLOW"])
+    unack_alerts = len([a for a in alerts if not a.get("acknowledged")])
+
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Total Shift Alerts", total_alerts)
+    s2.metric("Critical Red Escalations", crit_alerts, delta="Immediate Doctor SMS" if crit_alerts > 0 else "Normal", delta_color="inverse" if crit_alerts > 0 else "off")
+    s3.metric("Yellow Warnings", warn_alerts)
+    s4.metric("Unacknowledged", unack_alerts, delta="Requires Action" if unack_alerts > 0 else "All Clear", delta_color="inverse" if unack_alerts > 0 else "off")
+
+    st.markdown("---")
+
+    # 2. Controls: Filter Tabs, Search, Acknowledge All & Export Report
+    c_col1, c_col2, c_col3, c_col4 = st.columns([2.5, 2.0, 1.2, 1.3])
+    with c_col1:
+        alert_filter_tab = st.radio(
+            "Filter Severity",
+            options=["All Alerts", "Critical Only", "Warnings Only"],
+            horizontal=True,
+            key="alert_feed_filter_tab"
+        )
+    with c_col2:
+        alert_search = st.text_input("🔍 Search Alerts", placeholder="Search by patient, bed...", key="alert_search_input")
+    with c_col3:
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        if st.button("✅ Acknowledge All", type="primary", use_container_width=True, key="ack_all_btn"):
+            unack_list = [a for a in alerts if not a.get("acknowledged")]
+            for u_a in unack_list:
+                acknowledge_alert(u_a["id"])
+            st.success(f"Acknowledged {len(unack_list)} alert(s)!")
+            st.rerun()
+    with c_col4:
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        shift_report_text = f"VITALGUARD CLINICAL SHIFT REPORT\nGenerated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\nScope: {user_ward} ({user['hospital_name']})\nTotal Alerts: {total_alerts} (Critical: {crit_alerts}, Warnings: {warn_alerts}, Unacknowledged: {unack_alerts})\n\nALERT LOG:\n"
+        for a in alerts:
+            shift_report_text += f"- [{a.get('timestamp_str')}] {a.get('risk_level')} Risk | {a.get('patient_name')} ({a.get('ward')}, Bed {a.get('bed_number')}) - {a.get('message')}\n"
+        
+        st.download_button(
+            label="📄 Export Shift Report",
+            data=shift_report_text,
+            file_name=f"shift_report_{user_ward.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
+            mime="text/plain",
+            use_container_width=True,
+            key="export_shift_report_btn"
+        )
+
+    # 3. Filter Alert Cards
+    filtered_alerts = alerts
+    if alert_filter_tab == "Critical Only":
+        filtered_alerts = [a for a in filtered_alerts if a.get("risk_level") == "RED"]
+    elif alert_filter_tab == "Warnings Only":
+        filtered_alerts = [a for a in filtered_alerts if a.get("risk_level") == "YELLOW"]
+
+    if alert_search:
+        s_term = alert_search.lower()
+        filtered_alerts = [
+            a for a in filtered_alerts
+            if s_term in a.get("patient_name", "").lower() or s_term in a.get("bed_number", "").lower() or s_term in a.get("message", "").lower()
+        ]
+
+    # 4. Render Alert Feed Cards
+    if not filtered_alerts:
+        render_empty_state(
+            icon=get_svg_icon("shield-check", 32, "#10B981"),
+            title="No Escalation Alerts Found",
+            description="There are currently zero active deterioration alerts matching your active filters."
+        )
+    else:
+        for a in filtered_alerts:
+            is_unack = not a.get("acknowledged")
+            new_badge_html = '<span class="alert-badge-new">NEW</span> ' if is_unack else ''
+            border_color = "#DC2626" if a.get("risk_level") == "RED" else "#F59E0B"
+            bg_color = "#FEF2F2" if a.get("risk_level") == "RED" else "#FFFBEB"
+            
+            p_id = a.get("patient_id")
+
+            st.markdown(f"""
+            <div class="alert-feed-card" style="border-left: 5px solid {border_color}; background:{bg_color if is_unack else '#FFFFFF'};">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                    <div>
+                        <div style="font-weight:800; font-size:1.02rem; color:#0F172A;">
+                            {new_badge_html}{a.get('patient_name')} &bull; {a.get('ward')} {a.get('bed_number')}
+                        </div>
+                        <div style="font-size:0.75rem; color:#64748B;">MRN: <code>PT-{p_id:05d}</code> &bull; Timestamp: <strong>{a.get('timestamp_str')}</strong></div>
+                    </div>
+                    <div>
+                        {render_risk_badge(a.get('risk_level'), size="sm")}
+                    </div>
+                </div>
+                <div style="font-size:0.86rem; color:#334155; margin-bottom:8px; line-height:1.4;">
+                    <strong>Clinical Finding:</strong> {a.get('message')}
+                </div>
+                {f'<div style="font-size:0.75rem; color:#E11D48; font-weight:600; font-family:\'JetBrains Mono\'; mb-2">📱 {a.get("sms_simulated_text")}</div>' if a.get("sms_simulated_text") else ''}
+            </div>
+            """, unsafe_allow_html=True)
+
+            a_c1, a_c2 = st.columns([1, 1])
+            with a_c1:
+                if st.button("📊 View Patient Detail", key=f"feed_view_pt_{a['id']}", use_container_width=True):
+                    navigate_to("Patients", patient_id=p_id)
+            with a_c2:
+                if is_unack:
+                    if st.button("✅ Acknowledge Escalation", key=f"feed_ack_{a['id']}", use_container_width=True, type="primary"):
+                        acknowledge_alert(a["id"])
+                        st.rerun()
+                else:
+                    st.caption("✅ Acknowledged")
 
 
 # =============================================================================
-# VIEW 5: USER PROFILE & ARCHITECTURE DOCS
+# VIEW 4: USER PROFILE & ARCHITECTURE DOCS
 # =============================================================================
 
 elif st.session_state.nav_tab == "Profile":

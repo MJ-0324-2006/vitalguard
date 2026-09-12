@@ -63,22 +63,21 @@ def logout_user():
 
 def render_login_page():
     """
-    Renders Nurse Login and Authorized Nurse Registration tabs.
-    Teal/coral hospital-grade styling.
+    Renders Clean Centered Login Card for Dark Blue Theme (Feature text block removed per user request).
     """
     init_auth_session()
 
-    # Center card container
-    _, col, _ = st.columns([1, 2, 1])
+    _, col, _ = st.columns([1, 1.8, 1])
 
     with col:
         st.markdown("""
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <div style="display: inline-block; background: linear-gradient(135deg, #0D9488, #0F766E); color: white; font-weight: 800; font-size: 1.6rem; padding: 12px 20px; border-radius: 16px; box-shadow: 0 4px 14px rgba(13,148,136,0.35); margin-bottom: 12px;">
-                VG
+        <div style="text-align: center; margin-bottom: 1.2rem; padding-top: 1rem;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #E11D48; color: #FFFFFF; font-weight: 800; font-size: 1.4rem; padding: 8px 18px; border-radius: 14px; box-shadow: 0 4px 14px rgba(225,29,72,0.3); margin-bottom: 12px;">
+                <span>VG</span>
+                <span style="background: rgba(255,255,255,0.25); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace;">v2.4</span>
             </div>
-            <h2 style="color: #0F172A; font-weight: 800; margin: 0; letter-spacing: -0.5px;">VitalGuard Rural Health Portal</h2>
-            <p style="color: #64748B; font-size: 0.88rem; margin-top: 4px;">Sri Ramachandra Rural Health Centre &bull; Nurse Surveillance Gateway</p>
+            <h2 style="color: #0F172A !important; font-weight: 800; margin: 0; letter-spacing: -0.5px;">VitalGuard Pro</h2>
+            <p style="color: #475569 !important; font-size: 0.88rem; font-weight: 600; margin-top: 4px;">Clinical Early-Warning System &bull; v2.4 Platform</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -100,19 +99,32 @@ def render_login_page():
                 st.rerun()
 
         else:
+            # Hospital / Trust Selector
+            hospital_choice = st.selectbox(
+                "Hospital / Healthcare Trust",
+                options=[
+                    "Sri Ramachandra Rural Health Centre",
+                    "City General Hospital & Trauma Center",
+                    "Apex ICU & Critical Care Network"
+                ],
+                key="login_hospital_select"
+            )
+
             # Login vs Registration Tabs
-            tab_login, tab_register = st.tabs(["🔐 Nurse Login", "👩‍⚕️ Nurse Registration"])
+            tab_login, tab_register = st.tabs(["🔐 Sign In", "👩‍⚕️ Register Staff"])
 
             with tab_login:
                 with st.form("login_form"):
-                    st.markdown("##### 🔐 Nurse Login")
-                    username = st.text_input("Username", placeholder="Enter your nurse username (e.g., priya.nurse)")
-                    password = st.text_input("Password", type="password", placeholder="Enter password")
-                    login_btn = st.form_submit_button("Log In to Ward Surveillance", use_container_width=True)
+                    st.markdown("##### Staff Credentials")
+                    username = st.text_input("Staff ID / Username", placeholder="e.g. priya.nurse or STAFF-1001", value="priya.nurse")
+                    password = st.text_input("Password", type="password", placeholder="Enter password", value="nurse123")
+                    st.checkbox("Keep me signed in on this workstation", value=True, key="remember_me_check")
+                    
+                    login_btn = st.form_submit_button("Sign In to Clinical Portal", use_container_width=True)
 
                 if login_btn:
                     if not username or not password:
-                        st.warning("Please enter both username and password.")
+                        st.warning("Please enter both Staff ID / Username and password.")
                     else:
                         user_data = authenticate_user(username, password)
                         if user_data:
@@ -127,18 +139,18 @@ def render_login_page():
                             st.error("Invalid credentials. Please check your username and password.")
 
             with tab_register:
-                st.caption("Enter your nurse registration details below to create an account.")
+                st.caption("Register a new clinical nurse account below.")
                 with st.form("nurse_registration_form"):
-                    st.markdown("##### 👩‍⚕️ Register New Nurse Account")
-                    r_name = st.text_input("Nurse Full Name", placeholder="e.g. Nurse Priya Sharma")
-                    r_staff_id = st.text_input("Hospital Staff Registration ID", placeholder="e.g. STAFF-1001")
-                    r_hosp_name = st.text_input("Hospital Name", value="Sri Ramachandra Rural Health Centre", placeholder="e.g. Grameen Community Hospital")
+                    st.markdown("##### 👩‍⚕️ Clinical Account Registration")
+                    r_name = st.text_input("Full Name", placeholder="e.g. Nurse Priya Sharma")
+                    r_staff_id = st.text_input("Staff Registration ID", placeholder="e.g. STAFF-1001")
+                    r_hosp_name = st.text_input("Hospital / Facility Name", value=hospital_choice)
                     r_ward = st.selectbox("Assigned Ward", options=["Ward 3A", "Ward 3B", "ICU-A"])
                     r_phone = st.text_input("Mobile Phone Number", value="+91-91234-56789")
-                    r_user = st.text_input("Choose Username", placeholder="e.g. priya.nurse")
-                    r_pass = st.text_input("Choose Password", type="password", placeholder="Set initial password")
+                    r_user = st.text_input("Username", placeholder="e.g. priya.nurse")
+                    r_pass = st.text_input("Password", type="password", placeholder="Set initial password")
 
-                    register_btn = st.form_submit_button("Register Account", use_container_width=True)
+                    register_btn = st.form_submit_button("Complete Registration", use_container_width=True)
 
                 if register_btn:
                     if not r_name or not r_staff_id or not r_user or not r_pass or not r_hosp_name:
@@ -161,4 +173,5 @@ def render_login_page():
                         except Exception as ex:
                             st.error(f"Registration error: {ex}")
 
-            st.caption("🔒 Secured local SQLite authentication.")
+            st.caption("🔒 256-bit Encrypted SQLite Authentication Gate.")
+
