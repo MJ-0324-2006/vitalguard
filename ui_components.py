@@ -62,12 +62,10 @@ def inject_custom_css():
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-        /* Hide left sidebar completely for horizontal top navigation layout */
         [data-testid="stSidebar"], section[data-testid="stSidebar"], [data-testid="collapsedControl"] {
             display: none !important;
         }
 
-        /* Top Hospital Navigation Bar */
         .vg-topbar {
             display: flex;
             align-items: center;
@@ -121,8 +119,7 @@ def inject_custom_css():
             font-weight: 600;
         }
 
-        /* ================= MOBILE BOTTOM TAB NAVIGATION ================= */
-        /* Targets Streamlit's auto-generated class from st.container(key="mobile_bottom_nav") */
+        /* ================= MOBILE BOTTOM TAB NAVIGATION (ICON ONLY, SMALL) ================= */
         .st-key-mobile_bottom_nav {
             display: none;
         }
@@ -135,7 +132,7 @@ def inject_custom_css():
                 right: 0 !important;
                 background: #FFFFFF !important;
                 border-top: 1px solid #FECDD3;
-                padding: 6px 4px;
+                padding: 5px 20px !important;
                 z-index: 99999 !important;
                 box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
             }
@@ -151,46 +148,41 @@ def inject_custom_css():
                 flex: 1 1 0 !important;
                 width: auto !important;
                 min-width: 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+            }
+            .st-key-mobile_bottom_nav div[data-testid="stButton"] {
+                display: flex !important;
+                justify-content: center !important;
             }
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
-                width: 100% !important;
-                height: auto !important;
-                min-height: 58px !important;
-                border-radius: 14px !important;
-                font-size: 1.35rem !important;
+                width: 40px !important;
+                height: 36px !important;
+                min-height: 36px !important;
+                min-width: 40px !important;
+                border-radius: 10px !important;
+                font-size: 1.0rem !important;
                 line-height: 1 !important;
-                padding: 0.5rem 0.1rem 0.3rem 0.1rem !important;
-                white-space: normal !important;
-                word-break: keep-all !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
                 border: none !important;
                 background: transparent !important;
-                color: #64748B !important;
                 box-shadow: none !important;
                 display: flex !important;
-                flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 4px !important;
             }
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button p {
-                font-size: 0.62rem !important;
-                font-weight: 600 !important;
+                font-size: 1.0rem !important;
                 margin: 0 !important;
                 line-height: 1 !important;
-                color: #64748B !important;
             }
             .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] {
-                background: transparent !important;
+                background: #FEF2F2 !important;
             }
-            .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] p {
-                color: #E11D48 !important;
-                font-weight: 800 !important;
-            }
-            /* Push page content up so fixed bottom nav doesn't cover it */
             .main .block-container {
-                padding-bottom: 90px !important;
+                padding-bottom: 70px !important;
             }
-            /* Hide desktop top nav header row on narrow screens for a cleaner mobile look */
             .vg-topbar {
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -261,7 +253,6 @@ def inject_custom_css():
             margin-top: 2px;
         }
 
-        /* Overview Metric Cards (Home Screen) */
         .overview-card {
             background: #FFFFFF;
             border-radius: 12px;
@@ -317,7 +308,6 @@ def inject_custom_css():
             margin-top: 4px;
         }
 
-        /* Clinical Patient Cards */
         .patient-card {
             background: #FFFFFF;
             border-radius: 12px;
@@ -337,7 +327,6 @@ def inject_custom_css():
             box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.15) !important;
         }
 
-        /* Risk Badges */
         .risk-badge {
             display: inline-flex;
             align-items: center;
@@ -382,7 +371,6 @@ def inject_custom_css():
             100% { transform: scale(0.95); opacity: 0.8; }
         }
 
-        /* Metric Chips */
         .metric-chip {
             display: inline-flex;
             flex-direction: column;
@@ -406,7 +394,6 @@ def inject_custom_css():
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* SMS Notification Banner */
         .sms-banner {
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
             border-left: 4px solid #FB7185;
@@ -425,7 +412,6 @@ def inject_custom_css():
             color: #FB7185;
         }
 
-        /* Model Validation Panel Card */
         .model-val-card {
             background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             border: 1px solid #334155;
@@ -494,7 +480,6 @@ def inject_custom_css():
             line-height: 1.4;
         }
 
-        /* Critical Red Alert Banner */
         .critical-alert-banner {
             background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
             color: #FFFFFF;
@@ -525,7 +510,6 @@ def inject_custom_css():
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Explainability Box */
         .explain-box {
             background: #F8FAFC;
             border-left: 4px solid #E11D48;
@@ -550,7 +534,6 @@ def inject_custom_css():
             background: #F0FDF4;
         }
 
-        /* Clean Empty State */
         .empty-state-box {
             background: #F8FAFC;
             border: 2px dashed #CBD5E1;
@@ -578,7 +561,6 @@ def inject_custom_css():
             line-height: 1.5;
         }
 
-        /* Streamlit Primary & Secondary Button Overrides */
         div[data-testid="stButton"] button {
             border-radius: 10px !important;
             font-weight: 700 !important;
@@ -609,7 +591,6 @@ def inject_custom_css():
             transform: scale(0.98) !important;
         }
 
-        /* Form submit button */
         div[data-testid="stFormSubmitButton"] > button {
             background-color: #E11D48 !important;
             color: #FFFFFF !important;
@@ -647,21 +628,21 @@ def render_mobile_header(user: Dict[str, Any]):
     </div>
     """, unsafe_allow_html=True)
 def render_mobile_bottom_nav(active_tab: str, alert_count: int = 0):
-    """Fixed bottom tab bar shown ONLY on mobile widths."""
+    """Fixed bottom tab bar shown ONLY on mobile widths — icons only, compact."""
     nav_container = st.container(key="mobile_bottom_nav")
     with nav_container:
         cols = st.columns(4)
         tabs = [
-            ("home", "🏠", "Home"),
-            ("patients", "👥", "Patients"),
-            ("alerts", "🚨", f"Alerts{f' ({alert_count})' if alert_count > 0 else ''}"),
-            ("profile", "👤", "Profile"),
+            ("home", "🏠"),
+            ("patients", "👥"),
+            ("alerts", "🚨"),
+            ("profile", "👤"),
         ]
         clicked = None
-        for col, (tab_key, icon, label) in zip(cols, tabs):
+        for col, (tab_key, icon) in zip(cols, tabs):
             with col:
                 is_active = (active_tab == tab_key)
-                if st.button(f"{icon}\n{label}", key=f"nav_{tab_key}", type="primary" if is_active else "secondary", use_container_width=True):
+                if st.button(icon, key=f"nav_{tab_key}", type="primary" if is_active else "secondary", use_container_width=True):
                     clicked = tab_key
         return clicked
 def render_top_bar(user: Dict[str, Any]):
@@ -895,7 +876,6 @@ def render_compact_alerts_log(alerts: List[Dict[str, Any]]):
         render_empty_state("🔔", "No Deterioration Alerts", "Active surveillance is running. Critical deterioration alerts will appear here.")
         return
 
-    # Deduplicate alerts
     deduped = []
     for a in alerts:
         msg = (a.get("message") or "").strip()
@@ -907,7 +887,6 @@ def render_compact_alerts_log(alerts: List[Dict[str, Any]]):
         loc_str = f"{ward}, {bed}".strip(", ")
         patient_str = f"{p_name} ({loc_str})" if loc_str else p_name
 
-        # Extract 3-5 word concise reason
         short_reason = msg.split(";")[0] if ";" in msg else msg
         words = short_reason.split()
         if len(words) > 6:
