@@ -170,7 +170,14 @@ def inject_custom_css():
             }
         }
         /* ================= DESKTOP TOP NAV — HIDE ON MOBILE ================= */
-        /* Targets Streamlit's auto-generated class from st.container(key="desktop_top_nav") */
+        .st-key-desktop_top_nav {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .st-key-desktop_top_nav {
+                display: none !important;
+            }
+        }
         /* ================= MOBILE-ONLY BRANDED HEADER ================= */
         .st-key-mobile_header {
             display: none;

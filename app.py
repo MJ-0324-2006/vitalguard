@@ -233,10 +233,9 @@ with desktop_nav_container:
         if st.button("🚪 Logout", use_container_width=True, key="nav_btn_logout"):
             logout_user()
 
-    st.markdown("<hr style='margin: 0.5rem 0 1.25rem 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
-    
-    
-    mobile_header_container = st.container(key="mobile_header")
+st.markdown("<hr style='margin: 0.5rem 0 1.25rem 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
+
+mobile_header_container = st.container(key="mobile_header")
 with mobile_header_container:
     render_mobile_header(user)
 
