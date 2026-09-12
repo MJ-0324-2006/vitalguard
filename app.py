@@ -61,6 +61,7 @@ from discharge_report import generate_discharge_report_html, generate_discharge_
 from ui_components import (
     inject_custom_css,
     render_top_bar,
+    render_mobile_header,
     render_risk_badge,
     render_overview_cards,
     render_simulated_sms_banner,
@@ -233,6 +234,11 @@ with desktop_nav_container:
             logout_user()
 
     st.markdown("<hr style='margin: 0.5rem 0 1.25rem 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
+    
+    
+    mobile_header_container = st.container(key="mobile_header")
+with mobile_header_container:
+    render_mobile_header(user)
 
 # =============================================================================
 # MOBILE-ONLY BOTTOM TAB NAVIGATION
@@ -672,6 +678,7 @@ elif st.session_state.nav_tab == "Patients":
             )
         with s_col2:
             if is_admin:
+                hospital_wards = get_hospital_wards(hospital_id)
                 ward_options = ["All Wards"] + hospital_wards
                 dir_ward_filter = st.selectbox(
                     "Filter Ward",

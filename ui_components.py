@@ -171,13 +171,45 @@ def inject_custom_css():
         }
         /* ================= DESKTOP TOP NAV — HIDE ON MOBILE ================= */
         /* Targets Streamlit's auto-generated class from st.container(key="desktop_top_nav") */
-        .st-key-desktop_top_nav {
-            display: block;
+        /* ================= MOBILE-ONLY BRANDED HEADER ================= */
+        .st-key-mobile_header {
+            display: none;
         }
         @media (max-width: 768px) {
-            .st-key-desktop_top_nav {
-                display: none !important;
+            .st-key-mobile_header {
+                display: block !important;
             }
+        }
+        .vg-mobile-header-card {
+            background: linear-gradient(135deg, #9F1239 0%, #E11D48 100%);
+            border-radius: 16px;
+            padding: 1.1rem 1.25rem;
+            color: #FFFFFF;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px -2px rgba(225, 29, 72, 0.25);
+        }
+        .vg-mobile-header-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .vg-mobile-header-logo {
+            background: #FFFFFF;
+            color: #E11D48;
+            font-weight: 800;
+            font-size: 1.0rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+        .vg-mobile-header-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+        .vg-mobile-header-sub {
+            font-size: 0.75rem;
+            color: #FFE4E6;
+            margin-top: 2px;
         }
 
         /* Overview Metric Cards (Home Screen) */
@@ -550,7 +582,21 @@ def inject_custom_css():
 # =============================================================================
 # TOP HOSPITAL HEADER
 # =============================================================================
+def render_mobile_header(user: Dict[str, Any]):
+    """Compact branded header shown ONLY on mobile widths."""
+    hospital_name = user.get("hospital_name", "Clinical Hospital")
+    ward_name = user.get("ward", "General Ward")
+    user_name = user.get("name", "Staff")
 
+    st.markdown(f"""
+    <div class="vg-mobile-header-card">
+        <div class="vg-mobile-header-top">
+            <div class="vg-mobile-header-logo">VG</div>
+            <div class="vg-mobile-header-name">VitalGuard</div>
+        </div>
+        <div class="vg-mobile-header-sub">{hospital_name} &bull; {ward_name} &bull; {user_name}</div>
+    </div>
+    """, unsafe_allow_html=True)
 def render_top_bar(user: Dict[str, Any]):
     hospital_name = user.get("hospital_name", "Clinical Hospital")
     ward_name = user.get("ward", "General Ward")
