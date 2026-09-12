@@ -124,52 +124,65 @@ def inject_custom_css():
         /* ================= MOBILE BOTTOM TAB NAVIGATION ================= */
         /* Targets Streamlit's auto-generated class from st.container(key="mobile_bottom_nav") */
         .st-key-mobile_bottom_nav {
-    display: none;
-}
-@media (max-width: 768px) {
-    .st-key-mobile_bottom_nav {
-        display: block !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        background: #FFFFFF !important;
-        border-top: 1px solid #FECDD3;
-        padding: 6px 4px;
-        z-index: 99999 !important;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-    }
-    .st-key-mobile_bottom_nav > div,
-    .st-key-mobile_bottom_nav [data-testid="stVerticalBlock"],
-    .st-key-mobile_bottom_nav [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        width: 100% !important;
-        gap: 4px !important;
-    }
-    .st-key-mobile_bottom_nav [data-testid="column"] {
-        flex: 1 1 0 !important;
-        width: auto !important;
-        min-width: 0 !important;
-    }
-    .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
-        width: 100% !important;
-        border-radius: 10px !important;
-        font-size: 0.62rem !important;
-        padding: 0.5rem 0.15rem !important;
-        white-space: nowrap !important;
-        border: none !important;
-        background: transparent !important;
-        color: #64748B !important;
-        box-shadow: none !important;
-    }
-    .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] {
-        background: #FEF2F2 !important;
-        color: #E11D48 !important;
-        font-weight: 800 !important;
-    }
-}
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .st-key-mobile_bottom_nav {
+                display: block !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: #FFFFFF !important;
+                border-top: 1px solid #FECDD3;
+                padding: 6px 4px;
+                z-index: 99999 !important;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            }
+            .st-key-mobile_bottom_nav [data-testid="stVerticalBlock"],
+            .st-key-mobile_bottom_nav [data-testid="stHorizontalBlock"] {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                width: 100% !important;
+                gap: 4px !important;
+            }
+            .st-key-mobile_bottom_nav [data-testid="column"] {
+                flex: 1 1 0 !important;
+                width: auto !important;
+                min-width: 0 !important;
+            }
+            .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 52px !important;
+                border-radius: 10px !important;
+                font-size: 0.58rem !important;
+                line-height: 1.25 !important;
+                padding: 0.35rem 0.1rem !important;
+                white-space: normal !important;
+                word-break: keep-all !important;
+                overflow-wrap: normal !important;
+                border: none !important;
+                background: transparent !important;
+                color: #64748B !important;
+                box-shadow: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 2px !important;
+            }
+            .st-key-mobile_bottom_nav div[data-testid="stButton"] button p {
+                font-size: 0.58rem !important;
+                margin: 0 !important;
+                line-height: 1.2 !important;
+            }
+            .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] {
+                background: #FEF2F2 !important;
+                color: #E11D48 !important;
+                font-weight: 800 !important;
+            }
             /* Push page content up so fixed bottom nav doesn't cover it */
             .main .block-container {
                 padding-bottom: 90px !important;
