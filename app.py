@@ -86,7 +86,7 @@ st.set_page_config(
 # Ensure database tables exist and prototype demo data is seeded
 init_db()
 
-# Inject teal/coral design system styles
+# Inject rose/pink-coral design system styles
 inject_custom_css()
 
 # Initialize authentication session state
@@ -178,7 +178,7 @@ user_ward = user.get("ward", "Ward 3A")
 
 
 # =============================================================================
-# TOP HEADER & HORIZONTAL NAVIGATION BAR (STANDALONE WEBSITE HEADER)
+# TOP HEADER & HORIZONTAL NAVIGATION BAR (DESKTOP-FOCUSED WEBSITE HEADER)
 # =============================================================================
 
 active_scope_label = user_ward
@@ -189,10 +189,10 @@ header_cols = st.columns([2.6, 0.9, 0.9, 0.9, 0.9, 2.2, 0.9])
 with header_cols[0]:
     st.markdown(f"""
     <div style="display:flex; align-items:center; gap:10px; padding:2px 0;">
-        <div style="background:#0D9488; color:#FFFFFF; font-weight:800; font-size:1.1rem; padding:4px 10px; border-radius:8px; letter-spacing:-0.5px; box-shadow:0 2px 4px rgba(13,148,136,0.2);">VG</div>
+        <div style="background:#E11D48; color:#FFFFFF; font-weight:800; font-size:1.1rem; padding:4px 10px; border-radius:8px; letter-spacing:-0.5px; box-shadow:0 2px 4px rgba(225,29,72,0.2);">VG</div>
         <div>
             <div style="font-weight:800; font-size:1.05rem; color:#0F172A; line-height:1.2;">VitalGuard</div>
-            <div style="font-size:0.72rem; color:#0D9488; font-weight:600;">{user['hospital_name']} &bull; {user_ward}</div>
+            <div style="font-size:0.72rem; color:#E11D48; font-weight:600;">{user['hospital_name']} &bull; {user_ward}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -222,7 +222,7 @@ with header_cols[5]:
     st.markdown(f"""
     <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:#F8FAFC; border:1px solid #CBD5E1; padding:4px 10px; border-radius:9999px; margin-top:2px;">
         <span style="font-weight:700; font-size:0.78rem; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👤 {user['name']}</span>
-        <span style="background:#0D9488; color:#FFFFFF; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; white-space:nowrap;">{role_badge}</span>
+        <span style="background:#E11D48; color:#FFFFFF; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; white-space:nowrap;">{role_badge}</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -231,6 +231,33 @@ with header_cols[6]:
         logout_user()
 
 st.markdown("<hr style='margin: 0.5rem 0 1.25rem 0; border:none; border-top:1px solid #E2E8F0;'>", unsafe_allow_html=True)
+
+
+# =============================================================================
+# MOBILE-ONLY BOTTOM TAB NAVIGATION
+# Wrapped in st.container(key=...) so CSS can reliably target ".st-key-mobile_bottom_nav"
+# and hide it on desktop / fix it to the bottom on narrow (mobile) screens.
+# =============================================================================
+
+mobile_nav_container = st.container(key="mobile_bottom_nav")
+with mobile_nav_container:
+    mnav1, mnav2, mnav3, mnav4 = st.columns(4)
+    with mnav1:
+        if st.button("🏠 Home", use_container_width=True, key="mnav_home"):
+            st.session_state.nav_tab = "Home"
+            st.rerun()
+    with mnav2:
+        if st.button("👥 Patients", use_container_width=True, key="mnav_patients"):
+            st.session_state.nav_tab = "Patients"
+            st.rerun()
+    with mnav3:
+        if st.button("🚨 Alerts", use_container_width=True, key="mnav_alerts"):
+            st.session_state.nav_tab = "Alerts"
+            st.rerun()
+    with mnav4:
+        if st.button("👤 Profile", use_container_width=True, key="mnav_profile"):
+            st.session_state.nav_tab = "Profile"
+            st.rerun()
 
 
 # =============================================================================
@@ -373,7 +400,7 @@ if st.session_state.nav_tab == "Home":
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: #94A3B8; margin-top: 8px;">
                         <span>{last_time_label} ({len(hist)} observation{'s' if len(hist)!=1 else ''})</span>
-                        <span style="color:#0D9488; font-weight:600;">{strat_mode}</span>
+                        <span style="color:#E11D48; font-weight:600;">{strat_mode}</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -621,7 +648,7 @@ elif st.session_state.nav_tab == "Patients":
                     key="download_discharged_pdf_btn"
                 )
             with b2:
-                dl_link = f'<a href="data:application/pdf;base64,{b64_pdf}" download="{d_fname}" style="display:inline-block; width:100%; text-align:center; background-color:#0D9488; color:#FFFFFF; font-weight:700; padding:8px 12px; border-radius:8px; text-decoration:none; box-shadow:0 2px 6px rgba(13,148,136,0.3);">📥 Direct Save PDF File</a>'
+                dl_link = f'<a href="data:application/pdf;base64,{b64_pdf}" download="{d_fname}" style="display:inline-block; width:100%; text-align:center; background-color:#E11D48; color:#FFFFFF; font-weight:700; padding:8px 12px; border-radius:8px; text-decoration:none; box-shadow:0 2px 6px rgba(225,29,72,0.3);">📥 Direct Save PDF File</a>'
                 st.markdown(dl_link, unsafe_allow_html=True)
             with b3:
                 if st.button("Dismiss", key="dismiss_discharge_pdf_btn", use_container_width=True):

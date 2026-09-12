@@ -1,13 +1,14 @@
 """
 VitalGuard UI Design System & Component Library.
 
-Rose/Pink-Coral Hospital Styling:
-- Primary Rose (#E11D48), Accent (#FB7185), Slate (#0F172A, #64748B)
+Teal/Coral Hospital Styling:
+- Primary Teal (#E8622D), Coral Accent (#FF6F61), Slate (#0F172A, #64748B)
 - Soft shadows, rounded cards, medical badges
-- Top Hospital Navigation Bar (desktop) / Bottom Tab Navigation (mobile)
+- Top Hospital Navigation Bar
+- Bottom App Navigation (Home / Patients / Alerts / Profile)
 - Overview Cards (Critical / Needs Attention / Stable)
-- SMS Alert Banner
-- Light Pastel Vitals Card Grid
+- Simulated SMS Alert Banner
+- Interactive Plotly Trend Chart pulling from SQLite vitals_history
 - Clean Empty States (Zero Dummy Data compliance)
 """
 
@@ -54,7 +55,7 @@ def get_svg_icon(name: str, size: int = 16, color: str = "currentColor") -> str:
 
 
 # =============================================================================
-# ROSE / PINK-CORAL DESIGN SYSTEM CSS
+# TEAL / MUTED DESIGN SYSTEM CSS
 # =============================================================================
 
 def inject_custom_css():
@@ -73,11 +74,11 @@ def inject_custom_css():
             align-items: center;
             justify-content: space-between;
             padding: 0.9rem 1.4rem;
-            background: linear-gradient(135deg, #9F1239 0%, #E11D48 100%);
+            background: linear-gradient(135deg, #C2410C 0%, #E8622D 100%);
             border-radius: 12px;
             color: #FFFFFF;
             margin-bottom: 1.25rem;
-            box-shadow: 0 4px 16px -2px rgba(225, 29, 72, 0.20);
+            box-shadow: 0 4px 16px -2px rgba(13, 148, 136, 0.20);
         }
         .vg-brand-group {
             display: flex;
@@ -86,7 +87,7 @@ def inject_custom_css():
         }
         .vg-brand-logo {
             background: #FFFFFF;
-            color: #E11D48;
+            color: #E8622D;
             font-weight: 800;
             font-size: 1.15rem;
             padding: 6px 12px;
@@ -104,7 +105,7 @@ def inject_custom_css():
         .vg-brand-sub {
             margin: 1px 0 0 0;
             font-size: 0.78rem;
-            color: #FFE4E6;
+            color: #FFEDD5;
             font-weight: 500;
         }
         .vg-user-pill {
@@ -121,34 +122,8 @@ def inject_custom_css():
             font-weight: 600;
         }
 
-        /* ================= MOBILE BOTTOM TAB NAVIGATION ================= */
-        /* Targets Streamlit's auto-generated class from st.container(key="mobile_bottom_nav") */
-        .st-key-mobile_bottom_nav {
-            display: none;
-        }
+        /* Mobile Responsiveness Media Queries */
         @media (max-width: 768px) {
-            .st-key-mobile_bottom_nav {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #FFFFFF;
-                border-top: 1px solid #FECDD3;
-                padding: 8px 6px;
-                z-index: 9999;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            }
-            .st-key-mobile_bottom_nav button {
-                border-radius: 10px !important;
-                font-size: 0.72rem !important;
-                padding: 0.4rem 0.2rem !important;
-            }
-            /* Push page content up so fixed bottom nav doesn't cover it */
-            .main .block-container {
-                padding-bottom: 90px !important;
-            }
-            /* Hide desktop top nav header row on narrow screens for a cleaner mobile look */
             .vg-topbar {
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -167,13 +142,6 @@ def inject_custom_css():
             }
             .grid-2 {
                 grid-template-columns: 1fr !important;
-            }
-        }
-        /* Hide the top row of nav buttons (Home/Patients/Alerts/Profile) on mobile width,
-           since the bottom tab nav replaces them there. */
-        @media (max-width: 768px) {
-            div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"][aria-label]) {
-                /* fallback: no-op, Streamlit column targeting is limited */
             }
         }
 
@@ -245,12 +213,12 @@ def inject_custom_css():
         }
         .patient-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px -2px rgba(225, 29, 72, 0.10);
-            border-color: #FECDD3;
+            box-shadow: 0 6px 16px -2px rgba(13, 148, 136, 0.10);
+            border-color: #FED7AA;
         }
         .patient-card-selected {
-            border: 2px solid #E11D48 !important;
-            box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.15) !important;
+            border: 2px solid #E8622D !important;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15) !important;
         }
 
         /* Risk Badges */
@@ -322,10 +290,10 @@ def inject_custom_css():
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* SMS Notification Banner */
+        /* Simulated SMS Banner */
         .sms-banner {
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-            border-left: 4px solid #FB7185;
+            border-left: 4px solid #FF6F61;
             color: #FFFFFF;
             padding: 1rem 1.25rem;
             border-radius: 12px;
@@ -338,7 +306,7 @@ def inject_custom_css():
             justify-content: space-between;
             font-size: 0.88rem;
             font-weight: 700;
-            color: #FB7185;
+            color: #FF6F61;
         }
 
         /* Model Validation Panel Card */
@@ -362,15 +330,15 @@ def inject_custom_css():
         .model-val-title {
             font-size: 1.05rem;
             font-weight: 700;
-            color: #FB7185;
+            color: #FB923C;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .model-val-pill {
-            background: rgba(251, 113, 133, 0.15);
-            color: #FB7185;
-            border: 1px solid rgba(251, 113, 133, 0.3);
+            background: rgba(45, 212, 191, 0.15);
+            color: #FB923C;
+            border: 1px solid rgba(45, 212, 191, 0.3);
             padding: 3px 8px;
             border-radius: 9999px;
             font-size: 0.70rem;
@@ -444,7 +412,7 @@ def inject_custom_css():
         /* Explainability Box */
         .explain-box {
             background: #F8FAFC;
-            border-left: 4px solid #E11D48;
+            border-left: 4px solid #E8622D;
             border-radius: 0 12px 12px 0;
             padding: 1.25rem;
             margin: 1rem 0;
@@ -501,15 +469,15 @@ def inject_custom_css():
             transition: all 0.15s ease-in-out !important;
         }
         div[data-testid="stButton"] button[kind="primary"] {
-            background-color: #E11D48 !important;
+            background-color: #E8622D !important;
             color: #FFFFFF !important;
             border: none !important;
-            box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25) !important;
+            box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25) !important;
         }
         div[data-testid="stButton"] button[kind="primary"]:hover {
-            background-color: #9F1239 !important;
+            background-color: #C2410C !important;
             color: #FFFFFF !important;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
         }
         div[data-testid="stButton"] button[kind="secondary"] {
             background-color: #F8FAFC !important;
@@ -518,8 +486,8 @@ def inject_custom_css():
         }
         div[data-testid="stButton"] button[kind="secondary"]:hover {
             background-color: #F1F5F9 !important;
-            border-color: #E11D48 !important;
-            color: #E11D48 !important;
+            border-color: #E8622D !important;
+            color: #E8622D !important;
         }
         div[data-testid="stButton"] button:active {
             transform: scale(0.98) !important;
@@ -527,18 +495,18 @@ def inject_custom_css():
 
         /* Form submit button */
         div[data-testid="stFormSubmitButton"] > button {
-            background-color: #E11D48 !important;
+            background-color: #E8622D !important;
             color: #FFFFFF !important;
             font-weight: 800 !important;
             border-radius: 10px !important;
             padding: 0.65rem 1.5rem !important;
             border: none !important;
             letter-spacing: 0.3px !important;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
-            background-color: #9F1239 !important;
-            box-shadow: 0 6px 18px rgba(225, 29, 72, 0.35) !important;
+            background-color: #C2410C !important;
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35) !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -554,7 +522,7 @@ def render_top_bar(user: Dict[str, Any]):
     user_name = user.get("name", "Staff")
     role_str = "CHIEF PHYSICIAN / ADMIN" if user.get("role") == "admin" else "STAFF NURSE"
     user_icon = get_svg_icon("user", 13, "#FFFFFF")
-    hosp_icon = get_svg_icon("hospital", 18, "#E11D48")
+    hosp_icon = get_svg_icon("hospital", 18, "#E8622D")
 
     st.markdown(f"""
     <div class="vg-topbar">
@@ -625,7 +593,7 @@ def render_overview_cards(critical_count: int, warning_count: int, stable_count:
 
 
 # =============================================================================
-# SMS NOTIFICATION BANNER
+# SIMULATED SMS NOTIFICATION BANNER
 # =============================================================================
 
 def render_simulated_sms_banner(doctor_name: str, phone: str, patient_name: str, bed_display: str, risk_level: str):
@@ -634,7 +602,7 @@ def render_simulated_sms_banner(doctor_name: str, phone: str, patient_name: str,
     <div class="sms-banner">
         <div class="sms-header">
             <span>📱 URGENT CLINICAL SMS DISPATCH &bull; {time_str}</span>
-            <span style="font-size:0.75rem; background:rgba(251,113,133,0.2); padding:2px 8px; border-radius:4px;">STATUS: SENT & DELIVERED</span>
+            <span style="font-size:0.75rem; background:rgba(255,111,97,0.2); padding:2px 8px; border-radius:4px;">STATUS: SENT & DELIVERED</span>
         </div>
         <div class="sms-body">
             <strong>To:</strong> {doctor_name} ({phone})<br>
@@ -711,7 +679,7 @@ def render_empty_state(icon: str, title: str, description: str):
 
 
 # =============================================================================
-# LIGHT PASTEL VITALS MONITOR DISPLAY
+# ICU BEDSIDE VITAL MONITOR DISPLAY
 # =============================================================================
 
 def render_bedside_monitor_display(latest_vitals: Dict[str, Any], history: List[Dict[str, Any]]):
@@ -767,6 +735,8 @@ def render_bedside_monitor_display(latest_vitals: Dict[str, Any], history: List[
 
     monitor_html = f"""<div style="display:flex; gap:10px; flex-wrap:wrap; background:#F8FAFC; border-radius:16px; padding:14px;">{cards_html}</div>"""
     st.markdown(monitor_html, unsafe_allow_html=True)
+
+
 
 
 # =============================================================================

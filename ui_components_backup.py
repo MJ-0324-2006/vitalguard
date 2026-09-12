@@ -1,13 +1,14 @@
 """
 VitalGuard UI Design System & Component Library.
 
-Rose/Pink-Coral Hospital Styling:
-- Primary Rose (#E11D48), Accent (#FB7185), Slate (#0F172A, #64748B)
+Teal/Coral Hospital Styling:
+- Primary Teal (#0D9488), Coral Accent (#FF6F61), Slate (#0F172A, #64748B)
 - Soft shadows, rounded cards, medical badges
-- Top Hospital Navigation Bar (desktop) / Bottom Tab Navigation (mobile)
+- Top Hospital Navigation Bar
+- Bottom App Navigation (Home / Patients / Alerts / Profile)
 - Overview Cards (Critical / Needs Attention / Stable)
-- SMS Alert Banner
-- Light Pastel Vitals Card Grid
+- Simulated SMS Alert Banner
+- Interactive Plotly Trend Chart pulling from SQLite vitals_history
 - Clean Empty States (Zero Dummy Data compliance)
 """
 
@@ -54,7 +55,7 @@ def get_svg_icon(name: str, size: int = 16, color: str = "currentColor") -> str:
 
 
 # =============================================================================
-# ROSE / PINK-CORAL DESIGN SYSTEM CSS
+# TEAL / MUTED DESIGN SYSTEM CSS
 # =============================================================================
 
 def inject_custom_css():
@@ -73,11 +74,11 @@ def inject_custom_css():
             align-items: center;
             justify-content: space-between;
             padding: 0.9rem 1.4rem;
-            background: linear-gradient(135deg, #9F1239 0%, #E11D48 100%);
+            background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%);
             border-radius: 12px;
             color: #FFFFFF;
             margin-bottom: 1.25rem;
-            box-shadow: 0 4px 16px -2px rgba(225, 29, 72, 0.20);
+            box-shadow: 0 4px 16px -2px rgba(13, 148, 136, 0.20);
         }
         .vg-brand-group {
             display: flex;
@@ -86,7 +87,7 @@ def inject_custom_css():
         }
         .vg-brand-logo {
             background: #FFFFFF;
-            color: #E11D48;
+            color: #0D9488;
             font-weight: 800;
             font-size: 1.15rem;
             padding: 6px 12px;
@@ -104,7 +105,7 @@ def inject_custom_css():
         .vg-brand-sub {
             margin: 1px 0 0 0;
             font-size: 0.78rem;
-            color: #FFE4E6;
+            color: #CCFBF1;
             font-weight: 500;
         }
         .vg-user-pill {
@@ -121,34 +122,8 @@ def inject_custom_css():
             font-weight: 600;
         }
 
-        /* ================= MOBILE BOTTOM TAB NAVIGATION ================= */
-        /* Targets Streamlit's auto-generated class from st.container(key="mobile_bottom_nav") */
-        .st-key-mobile_bottom_nav {
-            display: none;
-        }
+        /* Mobile Responsiveness Media Queries */
         @media (max-width: 768px) {
-            .st-key-mobile_bottom_nav {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #FFFFFF;
-                border-top: 1px solid #FECDD3;
-                padding: 8px 6px;
-                z-index: 9999;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            }
-            .st-key-mobile_bottom_nav button {
-                border-radius: 10px !important;
-                font-size: 0.72rem !important;
-                padding: 0.4rem 0.2rem !important;
-            }
-            /* Push page content up so fixed bottom nav doesn't cover it */
-            .main .block-container {
-                padding-bottom: 90px !important;
-            }
-            /* Hide desktop top nav header row on narrow screens for a cleaner mobile look */
             .vg-topbar {
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -167,13 +142,6 @@ def inject_custom_css():
             }
             .grid-2 {
                 grid-template-columns: 1fr !important;
-            }
-        }
-        /* Hide the top row of nav buttons (Home/Patients/Alerts/Profile) on mobile width,
-           since the bottom tab nav replaces them there. */
-        @media (max-width: 768px) {
-            div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"][aria-label]) {
-                /* fallback: no-op, Streamlit column targeting is limited */
             }
         }
 
@@ -245,12 +213,12 @@ def inject_custom_css():
         }
         .patient-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px -2px rgba(225, 29, 72, 0.10);
-            border-color: #FECDD3;
+            box-shadow: 0 6px 16px -2px rgba(13, 148, 136, 0.10);
+            border-color: #99F6E4;
         }
         .patient-card-selected {
-            border: 2px solid #E11D48 !important;
-            box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.15) !important;
+            border: 2px solid #0D9488 !important;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15) !important;
         }
 
         /* Risk Badges */
@@ -322,10 +290,10 @@ def inject_custom_css():
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* SMS Notification Banner */
+        /* Simulated SMS Banner */
         .sms-banner {
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-            border-left: 4px solid #FB7185;
+            border-left: 4px solid #FF6F61;
             color: #FFFFFF;
             padding: 1rem 1.25rem;
             border-radius: 12px;
@@ -338,7 +306,7 @@ def inject_custom_css():
             justify-content: space-between;
             font-size: 0.88rem;
             font-weight: 700;
-            color: #FB7185;
+            color: #FF6F61;
         }
 
         /* Model Validation Panel Card */
@@ -362,15 +330,15 @@ def inject_custom_css():
         .model-val-title {
             font-size: 1.05rem;
             font-weight: 700;
-            color: #FB7185;
+            color: #2DD4BF;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .model-val-pill {
-            background: rgba(251, 113, 133, 0.15);
-            color: #FB7185;
-            border: 1px solid rgba(251, 113, 133, 0.3);
+            background: rgba(45, 212, 191, 0.15);
+            color: #2DD4BF;
+            border: 1px solid rgba(45, 212, 191, 0.3);
             padding: 3px 8px;
             border-radius: 9999px;
             font-size: 0.70rem;
@@ -444,7 +412,7 @@ def inject_custom_css():
         /* Explainability Box */
         .explain-box {
             background: #F8FAFC;
-            border-left: 4px solid #E11D48;
+            border-left: 4px solid #0D9488;
             border-radius: 0 12px 12px 0;
             padding: 1.25rem;
             margin: 1rem 0;
@@ -501,15 +469,15 @@ def inject_custom_css():
             transition: all 0.15s ease-in-out !important;
         }
         div[data-testid="stButton"] button[kind="primary"] {
-            background-color: #E11D48 !important;
+            background-color: #0D9488 !important;
             color: #FFFFFF !important;
             border: none !important;
-            box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25) !important;
+            box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25) !important;
         }
         div[data-testid="stButton"] button[kind="primary"]:hover {
-            background-color: #9F1239 !important;
+            background-color: #0F766E !important;
             color: #FFFFFF !important;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35) !important;
         }
         div[data-testid="stButton"] button[kind="secondary"] {
             background-color: #F8FAFC !important;
@@ -518,8 +486,8 @@ def inject_custom_css():
         }
         div[data-testid="stButton"] button[kind="secondary"]:hover {
             background-color: #F1F5F9 !important;
-            border-color: #E11D48 !important;
-            color: #E11D48 !important;
+            border-color: #0D9488 !important;
+            color: #0D9488 !important;
         }
         div[data-testid="stButton"] button:active {
             transform: scale(0.98) !important;
@@ -527,18 +495,18 @@ def inject_custom_css():
 
         /* Form submit button */
         div[data-testid="stFormSubmitButton"] > button {
-            background-color: #E11D48 !important;
+            background-color: #0D9488 !important;
             color: #FFFFFF !important;
             font-weight: 800 !important;
             border-radius: 10px !important;
             padding: 0.65rem 1.5rem !important;
             border: none !important;
             letter-spacing: 0.3px !important;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25) !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
-            background-color: #9F1239 !important;
-            box-shadow: 0 6px 18px rgba(225, 29, 72, 0.35) !important;
+            background-color: #0F766E !important;
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35) !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -554,7 +522,7 @@ def render_top_bar(user: Dict[str, Any]):
     user_name = user.get("name", "Staff")
     role_str = "CHIEF PHYSICIAN / ADMIN" if user.get("role") == "admin" else "STAFF NURSE"
     user_icon = get_svg_icon("user", 13, "#FFFFFF")
-    hosp_icon = get_svg_icon("hospital", 18, "#E11D48")
+    hosp_icon = get_svg_icon("hospital", 18, "#0D9488")
 
     st.markdown(f"""
     <div class="vg-topbar">
@@ -625,7 +593,7 @@ def render_overview_cards(critical_count: int, warning_count: int, stable_count:
 
 
 # =============================================================================
-# SMS NOTIFICATION BANNER
+# SIMULATED SMS NOTIFICATION BANNER
 # =============================================================================
 
 def render_simulated_sms_banner(doctor_name: str, phone: str, patient_name: str, bed_display: str, risk_level: str):
@@ -634,7 +602,7 @@ def render_simulated_sms_banner(doctor_name: str, phone: str, patient_name: str,
     <div class="sms-banner">
         <div class="sms-header">
             <span>📱 URGENT CLINICAL SMS DISPATCH &bull; {time_str}</span>
-            <span style="font-size:0.75rem; background:rgba(251,113,133,0.2); padding:2px 8px; border-radius:4px;">STATUS: SENT & DELIVERED</span>
+            <span style="font-size:0.75rem; background:rgba(255,111,97,0.2); padding:2px 8px; border-radius:4px;">STATUS: SENT & DELIVERED</span>
         </div>
         <div class="sms-body">
             <strong>To:</strong> {doctor_name} ({phone})<br>
@@ -711,18 +679,19 @@ def render_empty_state(icon: str, title: str, description: str):
 
 
 # =============================================================================
-# LIGHT PASTEL VITALS MONITOR DISPLAY
+# ICU BEDSIDE VITAL MONITOR DISPLAY
 # =============================================================================
 
 def render_bedside_monitor_display(latest_vitals: Dict[str, Any], history: List[Dict[str, Any]]):
     """
-    Renders a clean, light pastel-card vitals grid (soft, modern, non-clinical-dark style)
-    matching a warm, approachable hospital-app aesthetic.
+    Renders an authentic ICU bedside-monitor style display with large digital numbers,
+    neon telemetry color coding, parameter deltas (↑/↓), and CSS telemetry pulse line.
     """
     if not latest_vitals:
-        render_empty_state("📟", "No Vitals Data Available", "Chart bedside observations to activate the vitals display.")
+        render_empty_state("📟", "No Vitals Data Available", "Chart bedside observations to activate real-time telemetry monitor.")
         return
 
+    # Calculate parameter deltas vs previous reading if history >= 2
     prev_v = history[-2] if len(history) >= 2 else None
 
     def _get_delta(key: str, unit: str = ""):
@@ -733,11 +702,10 @@ def render_bedside_monitor_display(latest_vitals: Dict[str, Any], history: List[
             prev_val = float(prev_v[key])
             diff = curr_val - prev_val
             if abs(diff) < 0.1:
-                return "<span style='color:#94A3B8; font-size:0.72rem;'>→ steady</span>"
-            arrow = "↑" if diff > 0 else "↓"
-            bad = (key in ['heart_rate', 'resp_rate', 'temperature'] and diff > 0) or (key in ['spo2', 'sbp'] and diff < 0)
-            color = "#DC2626" if bad else "#16A34A"
-            return f"<span style='color:{color}; font-size:0.75rem; font-weight:700;'>{arrow} {diff:+.1f}{unit}</span>"
+                return "<span style='color:#94A3B8; font-size:0.75rem;'>&rarr; 0</span>"
+            arrow = "&uarr;" if diff > 0 else "&darr;"
+            color = "#EF4444" if (key in ['heart_rate','resp_rate','temperature'] and diff > 0) or (key in ['spo2','sbp'] and diff < 0) else "#10B981"
+            return f"<span style='color:{color}; font-size:0.78rem; font-weight:700;'>{arrow} {diff:+.1f}{unit}</span>"
         except (ValueError, TypeError):
             return ""
 
@@ -747,26 +715,117 @@ def render_bedside_monitor_display(latest_vitals: Dict[str, Any], history: List[
     spo2_val = latest_vitals.get("spo2", "--")
     rr_val = latest_vitals.get("resp_rate", "--")
     temp_val = latest_vitals.get("temperature", "--")
+    map_val = latest_vitals.get("map", "--")
 
     hr_delta = _get_delta("heart_rate")
     spo2_delta = _get_delta("spo2", "%")
     rr_delta = _get_delta("resp_rate")
     temp_delta = _get_delta("temperature", "°C")
 
-    cards = [
-        ("❤️", "Heart Rate", hr_val, "bpm", hr_delta, "#FEE2E2", "#DC2626", "60 - 100"),
-        ("🩸", "Blood Pressure", f"{sbp_val}/{dbp_val}", "mmHg", "", "#DBEAFE", "#2563EB", "90/60 - 130/85"),
-        ("💧", "SpO2", spo2_val, "%", spo2_delta, "#FEF3C7", "#D97706", "≥ 95"),
-        ("🫁", "Resp Rate", rr_val, "/min", rr_delta, "#EDE9FE", "#7C3AED", "12 - 20"),
-        ("🌡️", "Temperature", temp_val, "°C", temp_delta, "#FFEDD5", "#EA580C", "36.1 - 37.8"),
-    ]
+    # Bedside Monitor HTML Card Grid
+    monitor_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@700;800&display=swap');
+        * {{ box-sizing: border-box; }}
+        body {{ margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; overflow: hidden; }}
+    </style>
+    </head>
+    <body>
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 14px; border: 2px solid #334155; padding: 1rem 1.2rem; color: #FFFFFF; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+        <!-- Monitor Top Telemetry Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 6px; margin-bottom: 10px;">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.88rem; color:#38BDF8;">
+                <span style="display:inline-block; width:10px; height:10px; background:#10B981; border-radius:50%; box-shadow:0 0 8px #10B981;"></span>
+                ICU BEDSIDE VITAL MONITOR &bull; TELEMETRY LIVE
+            </div>
+            <div style="font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:#94A3B8;">
+                SWEEP: 25mm/s &bull; SENS: 10mm/mV
+            </div>
+        </div>
 
-    cards_html = ""
-    for icon, label, val, unit, delta, bg, fg, target in cards:
-        cards_html += f'<div style="background:{bg}; border-radius:14px; padding:14px 16px; flex:1; min-width:130px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;"><span style="font-size:0.78rem; font-weight:700; color:{fg};">{icon} {label}</span>{delta}</div><div style="font-size:1.7rem; font-weight:800; color:{fg}; font-family:\'Inter\', sans-serif;">{val}<span style="font-size:0.85rem; font-weight:600;"> {unit}</span></div><div style="font-size:0.68rem; color:#64748B; margin-top:2px;">Normal: {target}</div></div>'
+        <!-- Telemetry Pulse Animation Waveform -->
+        <div style="background:rgba(0,0,0,0.4); border-radius:8px; padding:5px 12px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:0.70rem; color:#10B981; font-weight:700; font-family:'JetBrains Mono';">ECG LEAD II</span>
+            <svg width="240" height="22" viewBox="0 0 240 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linejoin="round">
+                <path d="M0 12 L40 12 L45 4 L50 20 L55 2 L60 16 L65 12 L120 12 L125 4 L130 20 L135 2 L140 16 L145 12 L240 12" />
+            </svg>
+            <span style="font-size:0.70rem; color:#10B981; font-weight:700; font-family:'JetBrains Mono';">SYNCHRONIZED</span>
+        </div>
 
-    monitor_html = f"""<div style="display:flex; gap:10px; flex-wrap:wrap; background:#F8FAFC; border-radius:16px; padding:14px;">{cards_html}</div>"""
-    st.markdown(monitor_html, unsafe_allow_html=True)
+        <!-- 5 Telemetry Parameter Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+            
+            <!-- HR PARAMETER CARD -->
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.68rem; font-weight:800; color:#10B981; text-transform:uppercase;">HR (bpm)</span>
+                    {hr_delta}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #10B981; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin-top:2px;">
+                    {hr_val}
+                </div>
+                <div style="font-size:0.65rem; color:#6EE7B7; margin-top:2px;">Target: 60 - 90</div>
+            </div>
+
+            <!-- BP PARAMETER CARD -->
+            <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.68rem; font-weight:800; color:#38BDF8; text-transform:uppercase;">NIBP (mmHg)</span>
+                    <span style="font-size:0.65rem; color:#7DD3FC;">MAP {map_val}</span>
+                </div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8; font-family: 'JetBrains Mono', monospace; line-height: 1.2; margin-top:4px;">
+                    {sbp_val}/{dbp_val}
+                </div>
+                <div style="font-size:0.65rem; color:#7DD3FC; margin-top:2px;">Sys: 90 - 130</div>
+            </div>
+
+            <!-- SPO2 PARAMETER CARD -->
+            <div style="background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 8px; padding: 8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.68rem; font-weight:800; color:#FACC15; text-transform:uppercase;">SpO2 (%)</span>
+                    {spo2_delta}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #FACC15; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin-top:2px;">
+                    {spo2_val}
+                </div>
+                <div style="font-size:0.65rem; color:#FDE047; margin-top:2px;">Target: &ge; 95%</div>
+            </div>
+
+            <!-- RESP RATE PARAMETER CARD -->
+            <div style="background: rgba(192, 132, 252, 0.1); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 8px; padding: 8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.68rem; font-weight:800; color:#C084FC; text-transform:uppercase;">RESP (/min)</span>
+                    {rr_delta}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #C084FC; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin-top:2px;">
+                    {rr_val}
+                </div>
+                <div style="font-size:0.65rem; color:#E9D5FF; margin-top:2px;">Target: 12 - 20</div>
+            </div>
+
+            <!-- TEMP PARAMETER CARD -->
+            <div style="background: rgba(255, 111, 97, 0.1); border: 1px solid rgba(255, 111, 97, 0.3); border-radius: 8px; padding: 8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.68rem; font-weight:800; color:#FF6F61; text-transform:uppercase;">TEMP (°C)</span>
+                    {temp_delta}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #FF6F61; font-family: 'JetBrains Mono', monospace; line-height: 1.1; margin-top:2px;">
+                    {temp_val}
+                </div>
+                <div style="font-size:0.65rem; color:#FECACA; margin-top:2px;">Norm: 36.5 - 37.5</div>
+            </div>
+
+        </div>
+    </div>
+    </body>
+    </html>
+    """
+    st.components.v1.html(monitor_html, height=215)
+
+
 
 
 # =============================================================================
