@@ -169,11 +169,14 @@ def inject_custom_css():
                 grid-template-columns: 1fr !important;
             }
         }
-        /* Hide the top row of nav buttons (Home/Patients/Alerts/Profile) on mobile width,
-           since the bottom tab nav replaces them there. */
+        /* ================= DESKTOP TOP NAV — HIDE ON MOBILE ================= */
+        /* Targets Streamlit's auto-generated class from st.container(key="desktop_top_nav") */
+        .st-key-desktop_top_nav {
+            display: block;
+        }
         @media (max-width: 768px) {
-            div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"][aria-label]) {
-                /* fallback: no-op, Streamlit column targeting is limited */
+            .st-key-desktop_top_nav {
+                display: none !important;
             }
         }
 
