@@ -129,31 +129,35 @@ def inject_custom_css():
 @media (max-width: 768px) {
     .st-key-mobile_bottom_nav {
         display: block !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #FFFFFF;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: #FFFFFF !important;
         border-top: 1px solid #FECDD3;
         padding: 6px 4px;
-        z-index: 9999;
+        z-index: 99999 !important;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
     }
+    .st-key-mobile_bottom_nav > div,
+    .st-key-mobile_bottom_nav [data-testid="stVerticalBlock"],
     .st-key-mobile_bottom_nav [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
         gap: 4px !important;
     }
     .st-key-mobile_bottom_nav [data-testid="column"] {
-        flex: 1 !important;
-        min-width: 0 !important;
+        flex: 1 1 0 !important;
         width: auto !important;
+        min-width: 0 !important;
     }
     .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
         width: 100% !important;
         border-radius: 10px !important;
-        font-size: 0.68rem !important;
-        padding: 0.5rem 0.2rem !important;
+        font-size: 0.62rem !important;
+        padding: 0.5rem 0.15rem !important;
         white-space: nowrap !important;
         border: none !important;
         background: transparent !important;
