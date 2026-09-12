@@ -6,6 +6,7 @@ Team Orbit | National Level Ideathon 5.0 | CBIT Hyderabad
 Theme: Smart Healthcare & Biomedical Innovation
 """
 
+from ui_components import render_mobile_bottom_nav
 import base64
 import sys
 from datetime import datetime
@@ -239,31 +240,11 @@ mobile_header_container = st.container(key="mobile_header")
 with mobile_header_container:
     render_mobile_header(user)
 
-# =============================================================================
-# MOBILE-ONLY BOTTOM TAB NAVIGATION
-# Wrapped in st.container(key=...) so CSS can reliably target ".st-key-mobile_bottom_nav"
-# and hide it on desktop / fix it to the bottom on narrow (mobile) screens.
-# =============================================================================
-
-mobile_nav_container = st.container(key="mobile_bottom_nav")
-with mobile_nav_container:
-    mnav1, mnav2, mnav3, mnav4 = st.columns(4)
-    with mnav1:
-        if st.button("🏠 Home", use_container_width=True, key="mnav_home"):
-            st.session_state.nav_tab = "Home"
-            st.rerun()
-    with mnav2:
-        if st.button("👥 Patients", use_container_width=True, key="mnav_patients"):
-            st.session_state.nav_tab = "Patients"
-            st.rerun()
-    with mnav3:
-        if st.button("🚨 Alerts", use_container_width=True, key="mnav_alerts"):
-            st.session_state.nav_tab = "Alerts"
-            st.rerun()
-    with mnav4:
-        if st.button("👤 Profile", use_container_width=True, key="mnav_profile"):
-            st.session_state.nav_tab = "Profile"
-            st.rerun()
+mobile_alert_count = len(get_alerts_for_ward(hospital_id, None if is_admin else user_ward, limit=50))
+nav_click = render_mobile_bottom_nav(active_tab=st.session_state.nav_tab.lower(), alert_count=mobile_alert_count)
+if nav_click:
+    st.session_state.nav_tab = nav_click.capitalize()
+    st.rerun()
 
 
 # =============================================================================

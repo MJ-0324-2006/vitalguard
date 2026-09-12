@@ -124,26 +124,48 @@ def inject_custom_css():
         /* ================= MOBILE BOTTOM TAB NAVIGATION ================= */
         /* Targets Streamlit's auto-generated class from st.container(key="mobile_bottom_nav") */
         .st-key-mobile_bottom_nav {
-            display: none;
-        }
-        @media (max-width: 768px) {
-            .st-key-mobile_bottom_nav {
-                display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #FFFFFF;
-                border-top: 1px solid #FECDD3;
-                padding: 8px 6px;
-                z-index: 9999;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            }
-            .st-key-mobile_bottom_nav button {
-                border-radius: 10px !important;
-                font-size: 0.72rem !important;
-                padding: 0.4rem 0.2rem !important;
-            }
+    display: none;
+}
+@media (max-width: 768px) {
+    .st-key-mobile_bottom_nav {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #FFFFFF;
+        border-top: 1px solid #FECDD3;
+        padding: 6px 4px;
+        z-index: 9999;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+    }
+    .st-key-mobile_bottom_nav [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 4px !important;
+    }
+    .st-key-mobile_bottom_nav [data-testid="column"] {
+        flex: 1 !important;
+        min-width: 0 !important;
+        width: auto !important;
+    }
+    .st-key-mobile_bottom_nav div[data-testid="stButton"] button {
+        width: 100% !important;
+        border-radius: 10px !important;
+        font-size: 0.68rem !important;
+        padding: 0.5rem 0.2rem !important;
+        white-space: nowrap !important;
+        border: none !important;
+        background: transparent !important;
+        color: #64748B !important;
+        box-shadow: none !important;
+    }
+    .st-key-mobile_bottom_nav div[data-testid="stButton"] button[kind="primary"] {
+        background: #FEF2F2 !important;
+        color: #E11D48 !important;
+        font-weight: 800 !important;
+    }
+}
             /* Push page content up so fixed bottom nav doesn't cover it */
             .main .block-container {
                 padding-bottom: 90px !important;
@@ -604,6 +626,24 @@ def render_mobile_header(user: Dict[str, Any]):
         <div class="vg-mobile-header-sub">{hospital_name} &bull; {ward_name} &bull; {user_name}</div>
     </div>
     """, unsafe_allow_html=True)
+def render_mobile_bottom_nav(active_tab: str, alert_count: int = 0):
+    """Fixed bottom tab bar shown ONLY on mobile widths."""
+    nav_container = st.container(key="mobile_bottom_nav")
+    with nav_container:
+        cols = st.columns(4)
+        tabs = [
+            ("home", "🏠 Home"),
+            ("patients", "👥 Patients"),
+            ("alerts", f"🚨 Alerts" + (f" ({alert_count})" if alert_count > 0 else "")),
+            ("profile", "👤 Profile"),
+        ]
+        clicked = None
+        for col, (tab_key, label) in zip(cols, tabs):
+            with col:
+                is_active = (active_tab == tab_key)
+                if st.button(label, key=f"nav_{tab_key}", type="primary" if is_active else "secondary", use_container_width=True):
+                    clicked = tab_key
+        return clicked
 def render_top_bar(user: Dict[str, Any]):
     hospital_name = user.get("hospital_name", "Clinical Hospital")
     ward_name = user.get("ward", "General Ward")
